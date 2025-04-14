@@ -1,33 +1,60 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+// import './App.css';
+import {WeatherData} from "./types";
+import {useState} from "react";
+import {getWeatherData} from "./services/weatherAPI.ts";
+import {SearchBar} from "./components/SearchBar.tsx";
+import {WeatherCard} from "./components/WeatherCard.tsx";
+import {LoadingSkeleton} from "./components/LoadingSkeleton.tsx";
 
 function App() {
-  const [count, setCount] = useState(0)
+const [weather, setWeather] = useState<WeatherData | null>(null);
+const [error, setError] = useState<string | null>('');
+const [isLoading, setIsLoading] = useState(false);
+
+const handleSearch = async (city: string) => {
+try {
+  setIsLoading(true);
+  setError('');
+  const data = await getWeatherData(city);
+  setWeather(data);
+} catch (error) {
+  setError(error instanceof Error ? error.message : 'An unexpected error occurred');
+  setWeather(null);
+}finally {
+  setIsLoading(false);
+}
+}
+
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
+      <div className="min-h-screen bg-gray-100 py-8 px-4 flex flex-col justify-between"  >
+        <div className="max-w-md mx-auto space-y-4">
+          <h1 className="text-3xl font-bold text-center mb-8">
+            Weather Dashboard
+          </h1>
+
+          <SearchBar onSearch={handleSearch} isLoading={isLoading} />
+
+          {error && (
+            <div className="p-4 bg-red-100 text-red-700 rounded-lg">
+              {error}
+            </div>
+          )}
+          {isLoading && <LoadingSkeleton />}
+          {!isLoading && weather && <WeatherCard data={weather} />}
+          {!isLoading && error && (
+            <div className="p-4 bg-red-100 text-red-700 rounded-lg">
+              {error}
+            </div>
+          )}
+       </div>
+       <footer className="mt-8 text-center">
+        <p className="text-gray-600">
+          &copy; {new Date().getFullYear()} Weather Dashboard. All rights reserved.
         </p>
+       </footer>
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
     </>
   )
 }
