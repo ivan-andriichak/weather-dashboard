@@ -43,11 +43,6 @@ try {
           )}
           {isLoading && <LoadingSkeleton />}
           {!isLoading && weather && <WeatherCard data={weather} />}
-          {!isLoading && error && (
-            <div className="p-4 bg-red-100 text-red-700 rounded-lg">
-              {error}
-            </div>
-          )}
        </div>
        <footer className="mt-8 text-center">
         <p className="text-gray-600">
